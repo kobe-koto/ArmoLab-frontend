@@ -1,53 +1,70 @@
 ---
 ---
-<p>/* 
+<custom-typer>/* 
     <span class="
         after:bg-white after:inline-block after:h-3.5 after:w-px after:mx-1 after:animate-pulse
     " id="typer"></span>
- */</p>
+ */</custom-typer>
 
 <script>
-    const textList = [
-        "Welcome to the Armo Laboratory.",
-        "我们生活在阴沟里，但有人依然仰望星空。",
-        "We live in the gutter, but some still gaze at the stars."
-    ];
-    
-    let textIndex = 0;
-    let i = 0;
-    
-    function backspace() {
-        if(i > 0) {
-            i--;
-            document.getElementById("typer").innerHTML = textList[textIndex].substring(0, i);
-            setTimeout(backspace, 25);
-        } else {
-            textIndex++;
-            setTimeout(typeWriter, 300); 
-        }
-    }
-    function typeWriter() {
-        if (textIndex >= textList.length) {
-            textIndex = 0;
+    class CustomTyper extends HTMLElement {
+        private textIndex = 0;
+        private i = 0;
+        
+        private textList = [
+            "Welcome to the Armo Laboratory.",
+            "我们生活在阴沟里，但有人依然仰望星空。",
+            "We live in the gutter, but some still gaze at the stars."
+        ];
+
+        private typeDelay = 50; // delay between typing each character
+        private backspaceDelay = 25; // delay between backspacing each character
+        private deleteDelay = 2500; // pause before deleting the text
+        private newlineDelay = 500; // delay before starting the next line
+
+        constructor() {
+            super();
         }
 
-        let currentText = textList[textIndex];
-    
-        if (i < currentText.length) {
-            document.getElementById("typer").innerHTML += currentText.charAt(i);
-            i++;
-            setTimeout(typeWriter, 50);
-        } else {
-            if(textIndex < textList.length) {
-                setTimeout(function () {
-                    backspace()
-                }, 2500); 
+        private backspace() {
+            if (this.i > 0) {
+                this.i--;
+                document.getElementById("typer").innerHTML = this.textList[this.textIndex].substring(0, this.i);
+                setTimeout(() => { this.backspace() }, this.backspaceDelay);
+            } else {
+                this.textIndex++;
+                setTimeout(() => { this.typeWriter() }, this.newlineDelay);
             }
         }
+        private typeWriter() {
+            if (this.textIndex >= this.textList.length) {
+                this.textIndex = 0;
+            }
+
+            let currentText = this.textList[this.textIndex];
+
+            if (this.i < currentText.length) {
+                document.getElementById("typer").innerHTML += currentText.charAt(this.i);
+                this.i++;
+                setTimeout(() => { this.typeWriter() }, this.typeDelay);
+            } else {
+                if (this.textIndex < this.textList.length) {
+                    setTimeout(() => {
+                        this.backspace()
+                    }, this.deleteDelay);
+                }
+            }
+        }
+        private startTyping() {
+            this.typeWriter();
+        }
+
+
+        connectedCallback() {
+            // Start typing effect when the element is added to the DOM
+            setTimeout(() => { this.startTyping() }, 450);
+        }
     }
-    
-    setTimeout(function () {
-        typeWriter();
-    }, 450); 
-    
+
+    customElements.define('custom-typer', CustomTyper);
 </script>
