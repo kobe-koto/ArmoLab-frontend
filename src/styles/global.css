@@ -1,0 +1,11 @@
+@import "../assets/fonts/Outfit/main.scss";
+
+@import "tailwindcss";
+@theme {
+  --color-BG: #1f1f1f;
+  --color-Text: #f8f8ff;
+}
+
+body {
+	font-family: "Outfit", sans-serif, system-ui;
+}
