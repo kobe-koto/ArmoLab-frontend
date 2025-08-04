@@ -1,35 +1,73 @@
 ---
+interface Props {
+    typeDelay: number;
+    backspaceDelay: number;
+    deleteDelay: number;
+    newlineDelay: number;
+    startDelay: number;
+
+    textList: string[];
+
+    direction?: "forward" | "infinite";
+}
+
+const { 
+    typeDelay, backspaceDelay, deleteDelay, newlineDelay, startDelay,
+    textList,
+    direction = "infinite"
+    } = Astro.props;
+
 ---
-<custom-typer>/* 
+<custom-typer 
+    data-type-delay={typeDelay} data-backspace-delay={backspaceDelay} data-delete-delay={deleteDelay} data-newline-delay={newlineDelay}  data-start-delay={startDelay}
+    data-text-list={JSON.stringify(textList)} 
+    data-direction={direction}
+    >/* 
     <span class="
-        after:bg-white after:inline-block after:h-3.5 after:w-px after:mx-1 after:animate-pulse
-    " id="typer"></span>
+        after:bg-white after:inline-block after:h-3.5 after:w-px after:mx-1 after:animate-pulse after:align-[-0.125rem]
+    " data-role="typer-content"></span>
  */</custom-typer>
 
 <script>
     class CustomTyper extends HTMLElement {
         private textIndex = 0;
         private i = 0;
-        
-        private textList = [
-            "Welcome to the Armo Laboratory.",
-            "我们生活在阴沟里，但有人依然仰望星空。",
-            "We live in the gutter, but some still gaze at the stars."
-        ];
 
-        private typeDelay = 50; // delay between typing each character
-        private backspaceDelay = 25; // delay between backspacing each character
-        private deleteDelay = 2500; // pause before deleting the text
-        private newlineDelay = 500; // delay before starting the next line
+        private typeDelay: number; // delay between typing each character
+        private backspaceDelay: number; // delay between backspacing each character
+        private deleteDelay: number; // pause before deleting the text
+        private newlineDelay: number; // delay before starting the next line
+        private startDelay: number; // initial delay before starting the typing effect
+        private textList: string[]; // list of texts to type
+        private direction: "forward" | "infinite"; // direction of typing, can be "forward" or "infinite"
+        private typerContent: HTMLElement; // reference to the element that will display the text
 
         constructor() {
             super();
+            // extracting attributes from the element
+            this.typeDelay = parseInt(this.dataset.typeDelay);
+            this.backspaceDelay = parseInt(this.dataset.backspaceDelay);
+            this.deleteDelay = parseInt(this.dataset.deleteDelay);
+            this.newlineDelay = parseInt(this.dataset.newlineDelay);
+            this.startDelay = parseInt(this.dataset.startDelay);
+            this.textList = JSON.parse(this.dataset.textList);
+
+            // check the direction
+            if (this.dataset.direction !== "forward" && this.dataset.direction !== "infinite") {
+                console.warn("Invalid direction specified. Defaulting to 'infinite'.");
+                this.direction = "infinite";
+            } else {
+                this.direction = this.dataset.direction;
+            }
+
+            // setup the typer-content element
+            this.typerContent = this.querySelector('[data-role="typer-content"]');
         }
 
         private backspace() {
             if (this.i > 0) {
                 this.i--;
-                document.getElementById("typer").innerHTML = this.textList[this.textIndex].substring(0, this.i);
+                this.typerContent.innerText = this.textList[this.textIndex].substring(0, this.i);
                 setTimeout(() => { this.backspace() }, this.backspaceDelay);
             } else {
                 this.textIndex++;
@@ -44,14 +82,23 @@
             let currentText = this.textList[this.textIndex];
 
             if (this.i < currentText.length) {
-                document.getElementById("typer").innerHTML += currentText.charAt(this.i);
+                this.typerContent.innerText += currentText.charAt(this.i);
                 this.i++;
                 setTimeout(() => { this.typeWriter() }, this.typeDelay);
             } else {
                 if (this.textIndex < this.textList.length) {
-                    setTimeout(() => {
-                        this.backspace()
-                    }, this.deleteDelay);
+                    if (this.direction === "infinite") {
+                        // Reset to the first text if in infinite mode
+                        setTimeout(() => {
+                            this.backspace()
+                        }, this.deleteDelay);
+                    } else if (this.direction === "forward") {
+                        // cancel the cursor animation
+                        setTimeout(() => {
+                            this.typerContent.classList.remove('after:bg-white', 'after:inline-block', 'after:h-3.5', 'after:w-px', 'after:mx-1', 'after:animate-pulse');
+                        }, this.deleteDelay);
+                        return; // Stop typing if not in infinite mode
+                    }
                 }
             }
         }
@@ -62,7 +109,7 @@
 
         connectedCallback() {
             // Start typing effect when the element is added to the DOM
-            setTimeout(() => { this.startTyping() }, 450);
+            setTimeout(() => { this.startTyping() }, this.startDelay);
         }
     }
 

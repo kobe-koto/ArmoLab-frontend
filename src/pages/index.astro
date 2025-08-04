@@ -11,7 +11,32 @@ import Links from "@components/links.astro"
 			<span class="bg-clip-text text-transparent
 						 bg-gradient-to-r from-purple-500 to-pink-500">Armo Laboratory</span>
 		</h1>
-		<Typer />
+		<Typer
+			typeDelay={50} 
+			backspaceDelay={25} 
+			deleteDelay={2500} 
+			newlineDelay={500} 
+			startDelay={450}
+			textList={[
+				"Welcome to the Armo Laboratory.",
+				"我们生活在阴沟里，但有人依然仰望星空。",
+				"We live in the gutter, but some still gaze at the stars."
+			]}
+			direction="infinite"
+		/>
+		<p class="text-gray-400 text-sm mt-2">
+			<Typer
+				typeDelay={75} 
+				backspaceDelay={25} 
+				deleteDelay={2500} 
+				newlineDelay={500} 
+				startDelay={2500}
+				textList={[
+					"- ArmoLab Presents, from the depths of the internet.",
+				]}
+				direction="forward"
+			/>
+		</p>
 		<Links />
 	</div>
 </Layout>
