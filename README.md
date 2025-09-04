@@ -7,10 +7,6 @@ Stack: Astro.js, TailwindCSS
 # To develop:
 
 ```bash
-pnpm i
-pnpm dev
+bun i
+bun run dev
 ```
-
-# Special Thanks
-
-[![Dartnode](https://dartnode.com/assets/dash/images/brand/favicon.png) DartNode Sever Hosting](https://dartnode.com/)
